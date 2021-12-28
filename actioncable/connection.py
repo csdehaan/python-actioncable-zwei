@@ -85,7 +85,7 @@ class Connection:
                     cookie=self.cookie,
                     header=self.header,
                     on_message=lambda socket, message: self._on_message(socket, message),
-                    on_close=lambda socket: self._on_close(socket)
+                    on_close=lambda socket, close_status, close_msg: self._on_close(socket)
                 )
                 self.websocket.on_open = lambda socket: self._on_open(socket)
 
