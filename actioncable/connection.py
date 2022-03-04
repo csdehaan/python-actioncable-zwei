@@ -13,7 +13,7 @@ class Connection:
     """
     The connection to a websocket server
     """
-    def __init__(self, url, origin=None, log_ping=False, cookie=None, header=None):
+    def __init__(self, url, origin=None, log_ping=False, cookie=None, header=None, on_error=None):
         """
         :param url: The url of the cable server.
         :param origin: (Optional) The origin.
@@ -28,6 +28,7 @@ class Connection:
         self.log_ping = log_ping
         self.cookie = cookie
         self.header = header
+        self.on_websocket_error = on_error
 
         self.logger = logging.getLogger('ActionCable Connection')
 
@@ -85,13 +86,14 @@ class Connection:
                     cookie=self.cookie,
                     header=self.header,
                     on_message=lambda socket, message: self._on_message(socket, message),
-                    on_close=lambda socket, close_status, close_msg: self._on_close(socket)
+                    on_close=lambda socket, close_status, close_msg: self._on_close(socket),
+                    on_error= self.on_websocket_error
                 )
                 self.websocket.on_open = lambda socket: self._on_open(socket)
 
                 self.websocket.run_forever(ping_interval=5, ping_timeout=3, origin=self.origin)
 
-                time.sleep(2)
+                time.sleep(1)
             except Exception as exc:
                 self.logger.error('Connection loop raised exception. Exception: %s', exc)
 
