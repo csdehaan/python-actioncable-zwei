@@ -91,7 +91,7 @@ class Connection:
                 )
                 self.websocket.on_open = lambda socket: self._on_open(socket)
 
-                self.websocket.run_forever(ping_interval=5, ping_timeout=3, origin=self.origin)
+                self.websocket.run_forever(ping_interval=10, ping_timeout=5, origin=self.origin)
 
                 time.sleep(1)
             except Exception as exc:
