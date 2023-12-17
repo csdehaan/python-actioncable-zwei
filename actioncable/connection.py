@@ -13,19 +13,18 @@ class Connection:
     """
     The connection to a websocket server
     """
-    def __init__(self, url, origin=None, log_ping=False, cookie=None, header=None, on_error=None):
+    def __init__(self, url, origin=None, on_ping=None, cookie=None, header=None, on_error=None):
         """
         :param url: The url of the cable server.
         :param origin: (Optional) The origin.
-        :param log_ping: (Default: False) If true every
-                                            ping gets logged.
+        :param on_ping: (Default: None) A callback on every successful ping.
         :param cookie: (Optional) A cookie to send (used for
                                             authentication for instance).
         :param header: (Optional) custom header for websocket handshake.
         """
         self.url = url
         self.origin = origin
-        self.log_ping = log_ping
+        self.on_ping = on_ping
         self.cookie = cookie
         self.header = header
         self.on_websocket_error = on_error
@@ -91,7 +90,7 @@ class Connection:
                 )
                 self.websocket.on_open = lambda socket: self._on_open(socket)
 
-                self.websocket.run_forever(ping_interval=10, ping_timeout=5, origin=self.origin)
+                self.websocket.run_forever(ping_interval=10, ping_timeout=7, origin=self.origin)
 
                 time.sleep(1)
             except Exception as exc:
@@ -144,8 +143,8 @@ class Connection:
                     subscription.create()
 
         elif message_type == 'ping':
-            if self.log_ping:
-                self.logger.debug('Ping received.')
+            if self.on_ping:
+                self.on_ping()
         else:
             self.logger.warning('Message not supported. (Message: {})'.format(message))
 
